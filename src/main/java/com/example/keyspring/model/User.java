@@ -9,17 +9,19 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Column(length = 3, nullable = false)
+    @Column(name = "unique_id", length = 20, unique = true, insertable = false, updatable = false)
+    private String unique_id;
+
+    @Column(length = 3)
     @Getter @Setter
     private String prefix;
 
-    @Column(name = "unique_id", length = 20, unique = true, nullable = false)
-    @Getter
-    private String uniqueId;
 
     @Column(length = 255, unique = true, nullable = false)
     @Getter @Setter
@@ -31,31 +33,31 @@ public class User {
 
     @Column(length = 100, nullable = false)
     @Getter @Setter
-    private String firstName;
+    private String first_name;
 
     @Column(length = 100, nullable = false)
     @Getter @Setter
-    private String lastName;
+    private String last_name;
 
     @Column(name = "phone_number", length = 15)
     @Getter @Setter
-    private String phoneNumber;
+    private String phone_number;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT NOW()")
     @Getter @Setter
-    private LocalDateTime createdAt;
+    private LocalDateTime created_at;
 
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT NOW()")
     @Getter @Setter
-    private LocalDateTime updatedAt;
+    private LocalDateTime updated_at;
 
     @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT FALSE")
     @Getter @Setter
-    private Boolean isActive = false;
+    private Boolean is_active = false;
 
     @Column(name = "is_verified", columnDefinition = "BOOLEAN DEFAULT FALSE")
     @Getter @Setter
-    private Boolean isVerified = false;
+    private Boolean is_verified = false;
 
     @Column(length = 100, columnDefinition = "VARCHAR(100) DEFAULT 'user'")
     @Getter @Setter
@@ -63,42 +65,47 @@ public class User {
 
     @Column(name = "auth_provider", length = 50, columnDefinition = "VARCHAR(50) DEFAULT 'keySpring'")
     @Getter @Setter
-    private String authProvider = "keySpring";
+    private String auth_provider = "keySpring";
 
     @Column(name = "google_id", length = 300)
     @Getter @Setter
-    private String googleId;
+    private String google_id;
 
     @Column(name = "last_login_at")
     @Getter @Setter
-    private LocalDateTime lastLoginAt;
+    private LocalDateTime last_login_at;
 
     @Column(name = "password_reset_token", length = 300)
     @Getter @Setter
-    private String passwordResetToken;
+    private String password_reset_token;
 
     @Column(name = "reset_token_expires_at")
     @Getter @Setter
-    private LocalDateTime resetTokenExpiresAt;
+    private LocalDateTime reset_token_expires_at;
 
     @Column(name = "failed_login_attempts", columnDefinition = "INTEGER DEFAULT 0")
     @Getter @Setter
-    private Integer failedLoginAttempts = 0;
+    private Integer failed_login_attempts = 0;
 
     @Column(name = "account_locked_until")
     @Getter @Setter
-    private LocalDateTime accountLockedUntil;
+    private LocalDateTime account_locked_until;
 
     public User() {
     }
 
-    public User(String prefix, String email, String password, String firstName, String lastName) {
-        this.prefix = prefix;
+    public User(String email, String password, String firstName, String lastName) {
         this.email = email;
         this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.first_name = firstName;
+        this.last_name = lastName;
     }
 
-
+    public User(String email, String password, String firstName, String lastName, String googleId) {
+        this.email = email;
+        this.password = password;
+        this.first_name = firstName;
+        this.last_name = lastName;
+        this.google_id = googleId;
+    }
 }

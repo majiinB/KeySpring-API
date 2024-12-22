@@ -18,7 +18,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF since we're working with JWT
                 // Authorize the following requests from the client because they are public
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/auth/register").permitAll()
+                        .requestMatchers("/api/v1/auth/register/google").permitAll()
+                        .requestMatchers("/api/v1/auth/register/keySpring").permitAll()
                         .requestMatchers("/api/v1/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
