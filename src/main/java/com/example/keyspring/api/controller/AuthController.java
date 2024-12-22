@@ -24,7 +24,9 @@ public class AuthController {
     @PostMapping(path = "register")
     public void register(){
         try{
-            System.out.println(jweTokenService.createJweToken());
+            String token = jweTokenService.createJweToken("arthur");
+            System.out.println(token);
+            System.out.println(jweTokenService.extractSubject(token));
 
         } catch (Exception e) {
             System.out.println("Error: " + e);
