@@ -3,7 +3,6 @@ package com.example.keyspring.api.controller;
 import com.example.keyspring.model.User;
 import com.example.keyspring.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
