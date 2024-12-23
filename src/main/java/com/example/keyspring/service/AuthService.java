@@ -1,6 +1,7 @@
 package com.example.keyspring.service;
 
 import com.example.keyspring.model.User;
+import com.example.keyspring.model.response.Response;
 import com.example.keyspring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
@@ -21,25 +22,36 @@ public class AuthService {
         this.encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 
-    public void register(User user){
+    public Response register(User user){
         try{
             if(validateEmail(user.getEmail())){
-                throw new IllegalStateException("Email already taken");
+                return new Response(
+                        "409",
+                        "Email already exists.",
+                        null);
             }
 
             Map<String, String> passwordValidation = validatePassword(user.getPassword());
             if(passwordValidation.get("status").equals("false")){
-                throw new IllegalStateException(passwordValidation.get("message"));
+                return new Response(
+                        "400",
+                        passwordValidation.get("message"),
+                        null);
             }
 
-            if(user.getFirst_name().isBlank() || user.getLast_name().isBlank()){
-                throw new IllegalStateException("First name and last name are required.");
-            }
             user.setPrefix("ksl");
             user.setPassword(hashPassword(user.getPassword()));
             userRepository.save(user);
+            return new Response(
+                    "200",
+                    "User registered successfully.",
+                    null);
         }catch (Exception e){
-            throw new IllegalStateException(e.getMessage());
+            // TODO: Save error logs to database
+            return new Response(
+                    "500",
+                    "An unexpected error occurred on the server. Please try again later.",
+                    null);
         }
     }
 
@@ -81,5 +93,30 @@ public class AuthService {
         errors.put("message", "Password is valid.");
         return errors;
     }
-
+    public Map<String, String> validateUser(User user) {
+        Map<String, String> errors = new HashMap<>();
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            errors.put("status", "false");
+            errors.put("message", "Email is required.");
+            return errors;
+        }
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            errors.put("status", "false");
+            errors.put("message", "Password is required.");
+            return errors;
+        }
+        if (user.getFirst_name() == null || user.getFirst_name().isEmpty()) {
+            errors.put("status", "false");
+            errors.put("message", "First name is required.");
+            return errors;
+        }
+        if (user.getLast_name() == null || user.getLast_name().isEmpty()) {
+            errors.put("status", "false");
+            errors.put("message", "Last name is required.");
+            return errors;
+        }
+        errors.put("status", "true");
+        errors.put("message", "User is valid.");
+        return errors;
+    }
 }
