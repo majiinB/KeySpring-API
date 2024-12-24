@@ -13,18 +13,17 @@ import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
 
-/// Service class responsible for handling user authentication operations such as registration, login, and password management.
-/// Provides methods for validating user input (email, password) and processing user registration.
-///
-/// The service also includes password hashing and email validation logic.
-///
-/// `Author` Arthur Artugue
-///
-/// `version` 1.0
-///
-/// `since` 2024-12-21
-///
-/// `modified` 2024-12-23
+/**
+ * Service class responsible for handling user authentication operations such as registration, login, and password management.
+ * Provides methods for validating user input (email, password) and processing user registration.
+ *
+ * The service also includes password hashing and email validation logic.
+ *
+ * @author Arthur Artugue
+ * @version 1.0
+ * @since 2024-12-21
+ * @modified 2024-12-23
+ */
 @Service
 public class AuthService {
 
@@ -38,10 +37,12 @@ public class AuthService {
         this.encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 
-    /// Registers a new user after validating email and password.
-    ///
-    /// @param user User object containing registration details.
-    /// @return `Response` object indicating the result of the registration attempt.
+    /**
+     * Registers a new user after validating email and password.
+     *
+     * @param user User object containing registration details.
+     * @return {@code Response} object indicating the result of the registration attempt.
+     */
     public Response register(User user){
         try{
             if(!isValidEmailFormat(user.getEmail())){
@@ -84,36 +85,44 @@ public class AuthService {
         }
     }
 
-    /// Hashes the password using Argon2 algorithm.
-    ///
-    /// @param password The raw password to hash.
-    /// @return The hashed password.
+    /**
+     * Hashes the password using Argon2 algorithm.
+     *
+     * @param password The raw password to hash.
+     * @return The hashed password.
+     */
     public String hashPassword(String password){
         return encoder.encode(password);
     }
 
-    /// Checks if the provided raw password matches the hashed password stored in the database.
-    ///
-    /// @param rawPassword The raw password provided by the user.
-    /// @param dbHashedPassword The hashed password stored in the database.
-    /// @return true if the passwords match, false otherwise.
+    /**
+     * Checks if the provided raw password matches the hashed password stored in the database.
+     *
+     * @param rawPassword The raw password provided by the user.
+     * @param dbHashedPassword The hashed password stored in the database.
+     * @return true if the passwords match, false otherwise.
+     */
     public boolean checkPassword(String rawPassword, String dbHashedPassword){
         return encoder.matches(rawPassword, dbHashedPassword);
     }
 
-    /// Validates the user's email to ensure it is unique.
-    ///
-    /// @param email The email to validate.
-    /// @return true if the email exists, false otherwise.
+    /**
+     * Validates the user's email to ensure it is unique.
+     *
+     * @param email The email to validate.
+     * @return true if the email exists, false otherwise.
+     */
     public Boolean validateEmail(String email){
         return userRepository.findByEmail(email).isPresent();
     }
 
-    /// Validates the strength of the password.
-    /// Ensures the password meets various strength requirements.
-    ///
-    /// @param password The password to validate.
-    /// @return A `Map` containing the validation status and any relevant error message.
+    /**
+    * Validates the strength of the password.
+    * Ensures the password meets various strength requirements.
+    *
+    * @param password The password to validate.
+    * @return A {@code Map} containing the validation status and any relevant error message.
+    */
     public Map<String, String> validatePassword(String password) {
         Map<String, String> errors = new HashMap<>();
         if (password.length() < 8) {
@@ -146,10 +155,12 @@ public class AuthService {
         return errors;
     }
 
-    /// Validates the provided user fields to ensure all necessary information is present.
-    ///
-    /// @param user The user to validate.
-    /// @return A map containing the validation status and any relevant error message.
+    /**
+     * Validates the provided user fields to ensure all necessary information is present.
+     *
+     * @param user The user to validate.
+     * @return A map containing the validation status and any relevant error message.
+     */
     public Map<String, String> validateUser(User user) {
         Map<String, String> errors = new HashMap<>();
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
@@ -177,10 +188,12 @@ public class AuthService {
         return errors;
     }
 
-    /// Checks if the email format is valid.
-    ///
-    /// @param email The email to check.
-    /// @return true if the email format is valid, false otherwise.
+    /**
+     * Checks if the email format is valid.
+     *
+     * @param email The email to check.
+     * @return true if the email format is valid, false otherwise.
+     */
     private boolean isValidEmailFormat(String email) {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         return Pattern.matches(emailRegex, email);
