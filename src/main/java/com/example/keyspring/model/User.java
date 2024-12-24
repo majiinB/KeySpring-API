@@ -6,10 +6,19 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents a user entity in the application.
+ * This class is mapped to the "users" table in the database.
+ * It includes fields for user details such as email, password, name, and various status flags.
+ *
+ * @author Arthur Artugue
+ * @version 1.0
+ * @since 2024-12-21
+ * @modified 2024-12-24
+ */
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)

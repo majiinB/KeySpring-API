@@ -2,6 +2,7 @@ package com.example.keyspring.api.controller;
 
 import com.example.keyspring.model.User;
 import com.example.keyspring.model.response.Response;
+import com.example.keyspring.security.JweTokenService;
 import com.example.keyspring.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final JweTokenService jweTokenService;
 
    /**
     * Constructs an {@code AuthController} instance with the provided {@code AuthService}.
@@ -34,8 +36,9 @@ public class AuthController {
     * @param authService The authentication service that handles the business logic for user registration and validation.
     */
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JweTokenService jweTokenService) {
         this.authService = authService;
+        this.jweTokenService = jweTokenService;
     }
 
     /**
@@ -61,10 +64,19 @@ public class AuthController {
     }
 
     @PostMapping(path = "/register/google")
-    public void registerFromGoogle(@RequestBody User user) {
-        System.out.println("Register from Google");
+    public void registerFromGoogle() {
+
     }
 
+    /**
+     * Authenticates a user based on the provided email and password.
+     * <p>
+     * This endpoint validates the login credentials, checks if the user exists,
+     * and returns a response indicating the success or failure of the login attempt.
+     *
+     * @param requestBody A map containing the email and password of the user.
+     * @return A {@link ResponseEntity} containing the status and message of the login attempt.
+     */
     @PostMapping(path = "/login")
     public ResponseEntity<Response> login(@RequestBody Map<String, String> requestBody) {
         Response response = authService.login(requestBody);

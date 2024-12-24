@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  *
  * @author Arthur Artugue
  * @version 1.0
- * @since 2024-12-21
+ * @since 2024-12-24
  * @modified 2024-12-24
  */
 @UtilityClass

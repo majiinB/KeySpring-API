@@ -21,7 +21,7 @@ import java.util.Optional;
 /**
  * Service class responsible for handling user authentication operations such as registration, login, and password management.
  * Provides methods for validating user input (email, password) and processing user registration.
- *
+ * <p>
  * The service also includes password hashing and email validation logic.
  *
  * @author Arthur Artugue
@@ -102,6 +102,16 @@ public class AuthService {
         }
     }
 
+    /**
+     * Authenticates a user based on the provided email and password.
+     * <p>
+     * This method validates the login credentials, checks if the user exists,
+     * and returns a response indicating the success or failure of the login attempt.
+     * </p>
+     *
+     * @param requestBody A map containing the email and password of the user.
+     * @return A {@link Response} object containing the status and message of the login attempt.
+     */
     public Response login(Map<String, String > requestBody){
         try{
             if(requestBody.isEmpty()){
@@ -132,15 +142,16 @@ public class AuthService {
                         "Login failed. Invalid email format.",
                         null);
             }
-            Optional<User> dbUser = userRepository.findByEmail(email);
 
-            if(dbUser.isEmpty()){
+            User dbUser = findUserByEmail(email);
+
+            if(dbUser == null){
                 return new Response(
                         "404",
                         "Login failed. User not found.",
                         null);
             }
-            if(!validatePassword(password, dbUser.get().getPassword())){
+            if(!validatePassword(password, dbUser.getPassword())){
                 return new Response(
                         "401",
                         "Login failed. Invalid password.",
@@ -151,11 +162,11 @@ public class AuthService {
             LoginResponse loginResponse = new LoginResponse(
                     jweTokenService.createJweToken(
                             new UserClaim(
-                                    dbUser.get().getUnique_id(),
-                                    dbUser.get().getEmail(),
-                                    dbUser.get().getFirst_name(),
-                                    dbUser.get().getLast_name()),
-                            dbUser.get().getUnique_id(),
+                                    dbUser.getUnique_id(),
+                                    dbUser.getEmail(),
+                                    dbUser.getFirst_name(),
+                                    dbUser.getLast_name()),
+                            dbUser.getUnique_id(),
                             Date.from(Instant.now()),
                             expiresAt
                     ),
@@ -167,7 +178,7 @@ public class AuthService {
                     loginResponse);
         }catch (Exception e){
             // TODO: Save error logs to database
-            logger.error("Error occurred during user registration: {}", e.getMessage(), e);
+            logger.error("Error occurred during user login: {}", e.getMessage(), e);
             return new Response(
                     "500",
                     "An unexpected error occurred on the server. Please try again later.",
@@ -215,8 +226,4 @@ public class AuthService {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
-
-
-
-
 }
