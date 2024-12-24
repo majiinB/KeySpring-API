@@ -20,7 +20,7 @@ import java.util.Map;
  * @author Arthur Artugue
  * @version 1.0
  * @since 2024-12-21
- * @modified 2024-12-23
+ * @modified 2024-12-24
  */
 @RestController
 @RequestMapping(path = "api/v1/auth")
@@ -49,15 +49,6 @@ public class AuthController {
      */
     @PostMapping(path = "/register/keySpring")
     public ResponseEntity<Response> registerToKeySpring(@RequestBody User user) {
-        Map<String, String> userValidation = authService.validateUser(user);
-
-        if(userValidation.get("status").equals("false")){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response(
-                    "400",
-                    userValidation.get("message"),
-                    null)
-            );
-        }
 
         Response response = authService.register(user);
 

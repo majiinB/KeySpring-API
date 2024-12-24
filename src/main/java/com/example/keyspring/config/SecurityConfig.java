@@ -9,6 +9,15 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Configuration class responsible for handling security configurations for spring security
+ *
+ * @author Arthur Artugue
+ * @version 1.0
+ * @since 2024-12-21
+ * @modified 2024-12-24
+ */
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
