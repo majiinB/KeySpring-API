@@ -1,16 +1,14 @@
 package com.example.keyspring.security;
 
+import com.example.keyspring.model.claim.UserClaim;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Service
@@ -22,7 +20,11 @@ public class JweTokenService {
         this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
     }
 
-    public String createJweToken(String subject) {
+    public String createJweToken(
+            UserClaim userClaim,
+            String uniqueId,
+            Date issAt,
+            Date expAt) {
         try{
             return Jwts.builder()
                     .header()
@@ -30,11 +32,11 @@ public class JweTokenService {
                     .add("typ", "JWT")
                     .and()
                     .issuer("key-spring")
-                    .subject(subject)
-                    .expiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                    .notBefore(Date.from(Instant.now()))
-                    .issuedAt(new Date())
-                    .id("123")
+                    .subject(uniqueId)
+                    .claim("User", userClaim)
+                    .expiration(expAt)
+                    .notBefore(issAt)
+                    .issuedAt(issAt)
                     .signWith(secretKey)
                     .compact();
         } catch (Exception e) {

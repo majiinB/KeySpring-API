@@ -1,8 +1,11 @@
 package com.example.keyspring.service;
 
 import com.example.keyspring.model.User;
+import com.example.keyspring.model.response.LoginResponse;
 import com.example.keyspring.model.response.Response;
+import com.example.keyspring.model.claim.UserClaim;
 import com.example.keyspring.repository.UserRepository;
+import com.example.keyspring.security.JweTokenService;
 import com.example.keyspring.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
@@ -10,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service class responsible for handling user authentication operations such as registration, login, and password management.
@@ -27,12 +33,14 @@ import java.util.Map;
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final JweTokenService jweTokenService;
     private final UserRepository userRepository;
     private final Argon2PasswordEncoder encoder;
 
     @Autowired
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, JweTokenService jweTokenService) {
         this.userRepository = userRepository;
+        this.jweTokenService = jweTokenService;
         this.encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 
@@ -94,6 +102,79 @@ public class AuthService {
         }
     }
 
+    public Response login(Map<String, String > requestBody){
+        try{
+            if(requestBody.isEmpty()){
+                return new Response(
+                        "400",
+                        "Login failed. Email and password are required.",
+                        null);
+            }
+            if(!requestBody.containsKey("email")||!requestBody.containsKey("password")){
+                return new Response(
+                        "400",
+                        "Login failed. Email and password are required.",
+                        null);
+            }
+            if(requestBody.get("email").isEmpty()||requestBody.get("password").isEmpty()){
+                return new Response(
+                        "400",
+                        "Login failed. Email and password are required.",
+                        null);
+            }
+
+            String email = requestBody.get("email");
+            String password = requestBody.get("password");
+
+            if(!ValidationUtils.isValidEmailFormat(email)){
+                return new Response(
+                        "400",
+                        "Login failed. Invalid email format.",
+                        null);
+            }
+            Optional<User> dbUser = userRepository.findByEmail(email);
+
+            if(dbUser.isEmpty()){
+                return new Response(
+                        "404",
+                        "Login failed. User not found.",
+                        null);
+            }
+            if(!validatePassword(password, dbUser.get().getPassword())){
+                return new Response(
+                        "401",
+                        "Login failed. Invalid password.",
+                        null);
+            }
+
+            Date expiresAt = Date.from(Instant.now().plusSeconds(3600));
+            LoginResponse loginResponse = new LoginResponse(
+                    jweTokenService.createJweToken(
+                            new UserClaim(
+                                    dbUser.get().getUnique_id(),
+                                    dbUser.get().getEmail(),
+                                    dbUser.get().getFirst_name(),
+                                    dbUser.get().getLast_name()),
+                            dbUser.get().getUnique_id(),
+                            Date.from(Instant.now()),
+                            expiresAt
+                    ),
+                    expiresAt.getTime()/1000
+            );
+            return new Response(
+                    "200",
+                    "Login successful.",
+                    loginResponse);
+        }catch (Exception e){
+            // TODO: Save error logs to database
+            logger.error("Error occurred during user registration: {}", e.getMessage(), e);
+            return new Response(
+                    "500",
+                    "An unexpected error occurred on the server. Please try again later.",
+                    null);
+        }
+    }
+
     /**
      * Hashes the password using Argon2 algorithm.
      *
@@ -111,7 +192,7 @@ public class AuthService {
      * @param dbHashedPassword The hashed password stored in the database.
      * @return true if the passwords match, false otherwise.
      */
-    public boolean validatePassword(String rawPassword, String dbHashedPassword){
+    private boolean validatePassword(String rawPassword, String dbHashedPassword){
         return encoder.matches(rawPassword, dbHashedPassword);
     }
 

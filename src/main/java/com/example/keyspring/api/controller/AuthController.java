@@ -66,7 +66,15 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login")
-    public void login() {
-        System.out.println("Login");
+    public ResponseEntity<Response> login(@RequestBody Map<String, String> requestBody) {
+        Response response = authService.login(requestBody);
+
+        return switch (response.getStatus()) {
+            case "404" -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            case "401" -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            case "400" -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            case "200" -> ResponseEntity.ok(response);
+            default -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        };
     }
 }

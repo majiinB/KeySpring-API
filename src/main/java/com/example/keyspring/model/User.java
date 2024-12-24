@@ -16,6 +16,7 @@ public class User {
     private Long id;
 
     @Column(name = "unique_id", length = 20, unique = true, insertable = false, updatable = false)
+    @Getter
     private String unique_id;
 
     @Column(length = 3)
