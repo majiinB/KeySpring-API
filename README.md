@@ -1,7 +1,7 @@
 # KeySpring Backend / API  
 
 <p align="center">
-  <img src="./assets/logo_rectangle.png" alt="Header Cover" style="width: 100%; height: auto;">
+  <img src="" alt="Header Cover" style="width: 100%; height: auto;">
 </p>
 
 KeySpring Backend is the core authentication API for the KeySpring system. Built with Java Spring Boot, it handles secure credential storage, authentication logic, and integration with client applications.  
